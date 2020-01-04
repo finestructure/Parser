@@ -54,48 +54,62 @@ public struct Parser<A> {
 }
 
 
-public let int = Parser<Int> { str in
-  let prefix = str.prefix(while: { $0.isNumber })
-  let match = Int(prefix)
-  str.removeFirst(prefix.count)
-  return match
-}
+// MARK:- basic parsers
 
 
-public let char = Parser<Character> { str in
-  guard !str.isEmpty else { return nil }
-  return str.removeFirst()
-}
+extension Parser {
 
-
-public func char(in characterSet: CharacterSet) -> Parser<Character> {
-    return Parser<Character> { str in
-        guard let first = str.first, characterSet.contains(character: first) else { return nil }
-        return str.removeFirst()
+    public static var int: Parser<Int> {
+        Parser<Int> { str in
+            let prefix = str.prefix(while: { $0.isNumber })
+            let match = Int(prefix)
+            str.removeFirst(prefix.count)
+            return match
+        }
     }
-}
 
+    public static var char: Parser<Character> {
+        Parser<Character> { str in
+            guard !str.isEmpty else { return nil }
+            return str.removeFirst()
+        }
+    }
 
-func prefix(charactersIn characterSet: CharacterSet) -> Parser<Substring> {
-    return prefix(while: { characterSet.contains(character: $0) })
-}
+    public static func char(in characterSet: CharacterSet) -> Parser<Character> {
+        return Parser<Character> { str in
+            guard let first = str.first, characterSet.contains(character: first) else { return nil }
+            return str.removeFirst()
+        }
+    }
 
+    public static func literal(_ p: String) -> Parser<Void> {
+      return Parser<Void> { str in
+        guard str.hasPrefix(p) else { return nil }
+        str.removeFirst(p.count)
+        return ()
+      }
+    }
 
-public func literal(_ p: String) -> Parser<Void> {
-  return Parser<Void> { str in
-    guard str.hasPrefix(p) else { return nil }
-    str.removeFirst(p.count)
-    return ()
-  }
-}
+    public static func prefix(while p: @escaping (Character) -> Bool) -> Parser<Substring> {
+      return Parser<Substring> { str in
+        let prefix = str.prefix(while: p)
+        str.removeFirst(prefix.count)
+        return prefix
+      }
+    }
 
+    public static func prefix(charactersIn characterSet: CharacterSet) -> Parser<Substring> {
+        return prefix(while: { characterSet.contains(character: $0) })
+    }
 
-public func string(_ p: String) -> Parser<String> {
-  return Parser<String> { str in
-    guard str.hasPrefix(p) else { return nil }
-    str.removeFirst(p.count)
-    return p
-  }
+    public static func string(_ p: String) -> Parser<String> {
+      return Parser<String> { str in
+        guard str.hasPrefix(p) else { return nil }
+        str.removeFirst(p.count)
+        return p
+      }
+    }
+
 }
 
 
@@ -125,13 +139,6 @@ public func oneOf<A>(
 }
 
 
-public func prefix(while p: @escaping (Character) -> Bool) -> Parser<Substring> {
-  return Parser<Substring> { str in
-    let prefix = str.prefix(while: p)
-    str.removeFirst(prefix.count)
-    return prefix
-  }
-}
 
 
 public func prefix(upTo p: String) -> Parser<Substring> {
