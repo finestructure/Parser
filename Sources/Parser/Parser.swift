@@ -152,8 +152,6 @@ public func oneOf<A>(
 }
 
 
-
-
 public func shortestOf<A>(_ ps: [Parser<A>]) -> Parser<A> {
     return Parser<A> { str -> A? in
         var shortest: A? = nil
@@ -170,4 +168,3 @@ public func shortestOf<A>(_ ps: [Parser<A>]) -> Parser<A> {
         return shortest
     }
 }
-

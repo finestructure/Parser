@@ -82,4 +82,11 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(p.run("123"), Match(result: 123, rest: ""))
         XCTAssertEqual(p.run("123 "), Match(result: nil, rest: "123 "))
     }
+
+    func test_oneOf() {
+        let p = oneOf([.string("foo"), .string("bar")])
+        XCTAssertEqual(p.run("foo ..."), Match(result: "foo", rest: " ..."))
+        XCTAssertEqual(p.run("bar ..."), Match(result: "bar", rest: " ..."))
+        XCTAssertEqual(p.run("baz ..."), Match(result: nil, rest: "baz ..."))
+    }
 }
