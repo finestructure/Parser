@@ -65,6 +65,21 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(Parser<Int>.never.run(""), Match<Int>(result: nil, rest: ""))
     }
 
-    // appendEnd
+    func test_end() {
+        XCTAssertNotNil(Parser<Void>.end.run("").result)
+        XCTAssertNil(Parser<Void>.end.run("foo").result)
+        XCTAssertEqual(Parser<Void>.end.run("foo").rest, "foo")
+    }
 
+    func test_flatMap() {
+        let evenInt = Parser<Int>.int.flatMap { $0.isMultiple(of: 2) ? .always($0) : .never }
+        XCTAssertEqual(evenInt.run("12"), Match(result: 12, rest: ""))
+        XCTAssertEqual(evenInt.run("13"), Match(result: nil, rest: "13"))
+    }
+
+    func test_exhaustive() {
+        let p = Parser<Int>.int.exhaustive
+        XCTAssertEqual(p.run("123"), Match(result: 123, rest: ""))
+        XCTAssertEqual(p.run("123 "), Match(result: nil, rest: "123 "))
+    }
 }
