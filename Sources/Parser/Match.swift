@@ -7,8 +7,13 @@
 
 
 public struct Match<A> {
-    let result: A?
-    let rest: Substring
+    public let result: A?
+    public let rest: Substring
+
+    public init(result: A?, rest: Substring) {
+        self.result = result
+        self.rest = rest
+    }
 }
 
 
