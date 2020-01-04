@@ -12,15 +12,6 @@
 import Foundation
 
 
-public struct Match<A> {
-    let result: A?
-    let rest: Substring
-}
-
-
-extension Match: Equatable where A: Equatable {}
-
-
 public struct Parser<A> {
     public let run: (inout Substring) -> A?
 
