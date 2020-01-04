@@ -15,6 +15,9 @@ final class ParserTests: XCTestCase {
     }
 
     func test_literal() {
-//        XCTAssertEqual(literal("ab").run("abc"), Match<Void>(result: (), rest: "c"))
+        let match = literal("ab").run("abc")
+        XCTAssertNotNil(match.result)
+        XCTAssertEqual(match.rest, "c")
     }
+
 }
