@@ -102,6 +102,19 @@ extension Parser {
         return prefix(while: { characterSet.contains(character: $0) })
     }
 
+    public static func prefix(upTo p: String) -> Parser<Substring> {
+      return Parser<Substring> { str in
+        guard let range = str.range(of: p) else {
+            let match = str[...]
+            str = ""
+            return match
+        }
+        let match = str[..<range.lowerBound]
+        str = str[range.lowerBound...]
+        return match
+      }
+    }
+
     public static func string(_ p: String) -> Parser<String> {
       return Parser<String> { str in
         guard str.hasPrefix(p) else { return nil }
@@ -113,12 +126,12 @@ extension Parser {
 }
 
 
-public func always<A>(_ a: A) -> Parser<A> {
-    return Parser<A> { _ in a }
-}
-
-
 extension Parser {
+
+    public static func always<A>(_ a: A) -> Parser<A> {
+        return Parser<A> { _ in a }
+    }
+
     public static var never: Parser {
         return Parser { _ in nil }
     }
@@ -139,20 +152,6 @@ public func oneOf<A>(
 }
 
 
-
-
-public func prefix(upTo p: String) -> Parser<Substring> {
-  return Parser<Substring> { str in
-    guard let range = str.range(of: p) else {
-        let match = str[...]
-        str = ""
-        return match
-    }
-    let match = str[..<range.lowerBound]
-    str = str[range.lowerBound...]
-    return match
-  }
-}
 
 
 public func shortestOf<A>(_ ps: [Parser<A>]) -> Parser<A> {

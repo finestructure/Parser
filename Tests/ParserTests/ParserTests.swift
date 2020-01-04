@@ -24,8 +24,16 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(match.rest, "c")
     }
 
-    func test_prefix() {
+    func test_prefix_charactersIn() {
         XCTAssertEqual(Parser<String>.prefix(charactersIn: .letters).run("abc123"), Match(result: "abc", rest: "123"))
+    }
+
+    func test_prefix_while() {
+        XCTAssertEqual(Parser<String>.prefix(while: { $0 == " "}).run("   123"), Match(result: "   ", rest: "123"))
+    }
+
+    func test_prefix_upTo() {
+        XCTAssertEqual(Parser<String>.prefix(upTo: "--").run("abc--def"), Match(result: "abc", rest: "--def"))
     }
 
     func test_string() {
@@ -45,4 +53,18 @@ final class ParserTests: XCTestCase {
         let p = zip(.int, .literal("."), .int).map { Version(major: $0.0, minor: $0.2) }
         XCTAssertEqual(p.run("1.2"), Match<Version>(result: Version(major: 1, minor: 2), rest: ""))
     }
+
+    func test_always() {
+        XCTAssertEqual(Parser<String>.always("a").run("foo"), Match(result: "a", rest: "foo"))
+        XCTAssertEqual(Parser<Int>.always(123).run("foo"), Match(result: 123, rest: "foo"))
+        XCTAssertEqual(Parser<Int>.always(123).run(""), Match(result: 123, rest: ""))
+    }
+
+    func test_never() {
+        XCTAssertEqual(Parser<String>.never.run("foo"), Match<String>(result: nil, rest: "foo"))
+        XCTAssertEqual(Parser<Int>.never.run(""), Match<Int>(result: nil, rest: ""))
+    }
+
+    // appendEnd
+
 }
