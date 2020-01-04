@@ -14,6 +14,14 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(Parser<Character>.char.run("🎉✅😅"), Match(result: "🎉", rest: "✅😅"))
     }
 
+    func test_CharacterSet_contains_character() {
+        XCTAssertTrue(CharacterSet.decimalDigits.contains(character: "3"))
+        XCTAssertFalse(CharacterSet.decimalDigits.contains(character: "a"))
+        XCTAssertTrue(CharacterSet(charactersIn: "👩‍👩‍👧‍👦").contains(character: "👩‍👩‍👧‍👦"))
+        XCTAssertFalse(CharacterSet(charactersIn: "👩").contains(character: "👩‍👩‍👧‍👦"))
+        XCTAssertFalse(CharacterSet(charactersIn: "👩‍👩‍👧‍👦").contains(character: "👩"))
+    }
+
     func test_char_in_CharacterSet() {
         XCTAssertEqual(Parser<Character>.char(in: .letters).run("abc123"), Match(result: "a", rest: "bc123"))
     }
