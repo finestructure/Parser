@@ -4,14 +4,14 @@ import XCTest
 final class ParserTests: XCTestCase {
 
     func test_int() {
-        XCTAssertEqual(Parser.int.run("123"), Match(result: 123, rest: ""))
-        XCTAssertEqual(Parser.int.run("123abc"), Match(result: 123, rest: "abc"))
-        XCTAssertEqual(Parser.int.run("abc123"), Match(result: nil, rest: "abc123"))
+        XCTAssertEqual(Parser<Int>.int.run("123"), Match(result: 123, rest: ""))
+        XCTAssertEqual(Parser<Int>.int.run("123abc"), Match(result: 123, rest: "abc"))
+        XCTAssertEqual(Parser<Int>.int.run("abc123"), Match(result: nil, rest: "abc123"))
     }
 
     func test_char() {
-        XCTAssertEqual(Parser.char.run("abc"), Match(result: "a", rest: "bc"))
-        XCTAssertEqual(Parser.char.run("🎉✅😅"), Match(result: "🎉", rest: "✅😅"))
+        XCTAssertEqual(Parser<Character>.char.run("abc"), Match(result: "a", rest: "bc"))
+        XCTAssertEqual(Parser<Character>.char.run("🎉✅😅"), Match(result: "🎉", rest: "✅😅"))
     }
 
     func test_CharacterSet_contains_character() {
@@ -23,33 +23,33 @@ final class ParserTests: XCTestCase {
     }
 
     func test_char_in_CharacterSet() {
-        XCTAssertEqual(Parser.char(in: .letters).run("abc123"), Match(result: "a", rest: "bc123"))
+        XCTAssertEqual(Parser<Character>.char(in: .letters).run("abc123"), Match(result: "a", rest: "bc123"))
     }
 
     func test_literal() {
-        let match = Parser.literal("ab").run("abc")
+        let match = Parser<Void>.literal("ab").run("abc")
         XCTAssertNotNil(match.result)
         XCTAssertEqual(match.rest, "c")
     }
 
     func test_prefix_charactersIn() {
-        XCTAssertEqual(Parser.prefix(charactersIn: .letters).run("abc123"), Match(result: "abc", rest: "123"))
+        XCTAssertEqual(Parser<String>.prefix(charactersIn: .letters).run("abc123"), Match(result: "abc", rest: "123"))
     }
 
     func test_prefix_while() {
-        XCTAssertEqual(Parser.prefix(while: { $0 == " "}).run("   123"), Match(result: "   ", rest: "123"))
+        XCTAssertEqual(Parser<String>.prefix(while: { $0 == " "}).run("   123"), Match(result: "   ", rest: "123"))
     }
 
     func test_prefix_upTo() {
-        XCTAssertEqual(Parser.prefix(upTo: "--").run("abc--def"), Match(result: "abc", rest: "--def"))
+        XCTAssertEqual(Parser<String>.prefix(upTo: "--").run("abc--def"), Match(result: "abc", rest: "--def"))
     }
 
     func test_string() {
-        XCTAssertEqual(Parser.string("123").run("123abc"), Match(result: "123", rest: "abc"))
+        XCTAssertEqual(Parser<String>.string("123").run("123abc"), Match(result: "123", rest: "abc"))
     }
 
     func test_map() {
-        let p = Parser.int.map { $0 + 1 }
+        let p = Parser<Int>.int.map { $0 + 1 }
         XCTAssertEqual(p.run("1"), Match(result: 2, rest: ""))
     }
 
@@ -69,24 +69,24 @@ final class ParserTests: XCTestCase {
     }
 
     func test_never() {
-        XCTAssertEqual(Parser.never.run("foo"), Match<String>(result: nil, rest: "foo"))
-        XCTAssertEqual(Parser.never.run(""), Match<Int>(result: nil, rest: ""))
+        XCTAssertEqual(Parser<String>.never.run("foo"), Match<String>(result: nil, rest: "foo"))
+        XCTAssertEqual(Parser<Int>.never.run(""), Match<Int>(result: nil, rest: ""))
     }
 
     func test_end() {
-        XCTAssertNotNil(Parser.end.run("").result)
-        XCTAssertNil(Parser.end.run("foo").result)
-        XCTAssertEqual(Parser.end.run("foo").rest, "foo")
+        XCTAssertNotNil(Parser<Void>.end.run("").result)
+        XCTAssertNil(Parser<Void>.end.run("foo").result)
+        XCTAssertEqual(Parser<Void>.end.run("foo").rest, "foo")
     }
 
     func test_flatMap() {
-        let evenInt = Parser.int.flatMap { $0.isMultiple(of: 2) ? .always($0) : .never }
+        let evenInt = Parser<Int>.int.flatMap { $0.isMultiple(of: 2) ? .always($0) : .never }
         XCTAssertEqual(evenInt.run("12"), Match(result: 12, rest: ""))
         XCTAssertEqual(evenInt.run("13"), Match(result: nil, rest: "13"))
     }
 
     func test_exhaustive() {
-        let p = Parser.int.exhaustive
+        let p = Parser<Int>.int.exhaustive
         XCTAssertEqual(p.run("123"), Match(result: 123, rest: ""))
         XCTAssertEqual(p.run("123 "), Match(result: nil, rest: "123 "))
     }
