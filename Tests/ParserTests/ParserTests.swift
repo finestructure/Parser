@@ -33,19 +33,19 @@ final class ParserTests: XCTestCase {
     }
 
     func test_prefix_charactersIn() {
-        XCTAssertEqual(Parser<String>.prefix(charactersIn: .letters).run("abc123"), Match(result: "abc", rest: "123"))
+        XCTAssertEqual(Parser.prefix(charactersIn: .letters).run("abc123"), Match(result: "abc", rest: "123"))
     }
 
     func test_prefix_while() {
-        XCTAssertEqual(Parser<String>.prefix(while: { $0 == " "}).run("   123"), Match(result: "   ", rest: "123"))
+        XCTAssertEqual(Parser.prefix(while: { $0 == " "}).run("   123"), Match(result: "   ", rest: "123"))
     }
 
     func test_prefix_upTo() {
-        XCTAssertEqual(Parser<String>.prefix(upTo: "--").run("abc--def"), Match(result: "abc", rest: "--def"))
+        XCTAssertEqual(Parser.prefix(upTo: "--").run("abc--def"), Match(result: "abc", rest: "--def"))
     }
 
     func test_string() {
-        XCTAssertEqual(Parser<String>.string("123").run("123abc"), Match(result: "123", rest: "abc"))
+        XCTAssertEqual(Parser.string("123").run("123abc"), Match(result: "123", rest: "abc"))
     }
 
     func test_map() {
