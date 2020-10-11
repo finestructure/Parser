@@ -45,11 +45,11 @@ public struct Parser<A> {
     }
 
     public static var end: Parser<Void> {
-        Parser<Void> { $0.isEmpty ? () : nil }
+        return .init { $0.isEmpty ? () : nil }
     }
 
     public var exhaustive: Parser<A> {
-        zip(self, .end).flatMap { a, _ in .always(a) }
+        return zip(self, .end).flatMap { a, _ in .always(a) }
     }
 }
 
@@ -59,8 +59,8 @@ public struct Parser<A> {
 
 extension Parser where A == Int {
 
-    public static var int: Self {
-        .init { str in
+    public static var int: Parser {
+        return .init { str in
             let prefix = str.prefix(while: { $0.isNumber })
             let match = Int(prefix)
             str.removeFirst(prefix.count)
@@ -73,15 +73,15 @@ extension Parser where A == Int {
 
 extension Parser where A == Character {
 
-    public static var char: Self {
-        .init { str in
+    public static var char: Parser {
+        return .init { str in
             guard !str.isEmpty else { return nil }
             return str.removeFirst()
         }
     }
 
-    public static func char(in characterSet: CharacterSet) -> Self {
-        .init { str in
+    public static func char(in characterSet: CharacterSet) -> Parser {
+        return .init { str in
             guard let first = str.first, characterSet.contains(character: first) else { return nil }
             return str.removeFirst()
         }
@@ -91,53 +91,53 @@ extension Parser where A == Character {
 
 extension Parser where A == Void {
 
-    public static func literal(_ p: String) -> Self {
-      .init { str in
-        guard str.hasPrefix(p) else { return nil }
-        str.removeFirst(p.count)
-        return ()
-      }
+    public static func literal(_ p: String) -> Parser {
+        return .init { str in
+            guard str.hasPrefix(p) else { return nil }
+            str.removeFirst(p.count)
+            return ()
+        }
     }
 
 }
 
 extension Parser where A == Substring {
 
-    public static func prefix(while p: @escaping (Character) -> Bool) -> Self {
-      .init { str in
-        let prefix = str.prefix(while: p)
-        str.removeFirst(prefix.count)
-        return prefix
-      }
+    public static func prefix(while p: @escaping (Character) -> Bool) -> Parser {
+        return .init { str in
+            let prefix = str.prefix(while: p)
+            str.removeFirst(prefix.count)
+            return prefix
+        }
     }
 
-    public static func prefix(charactersIn characterSet: CharacterSet) -> Self {
+    public static func prefix(charactersIn characterSet: CharacterSet) -> Parser {
         return prefix(while: { characterSet.contains(character: $0) })
     }
 
-    public static func prefix(upTo p: String) -> Self {
-      .init { str in
-        guard let range = str.range(of: p) else {
-            let match = str[...]
-            str = ""
+    public static func prefix(upTo p: String) -> Parser {
+        return .init { str in
+            guard let range = str.range(of: p) else {
+                let match = str[...]
+                str = ""
+                return match
+            }
+            let match = str[..<range.lowerBound]
+            str = str[range.lowerBound...]
             return match
         }
-        let match = str[..<range.lowerBound]
-        str = str[range.lowerBound...]
-        return match
-      }
     }
 
 }
 
 extension Parser where A == String {
 
-    public static func string(_ p: String) -> Self {
-      .init { str in
-        guard str.hasPrefix(p) else { return nil }
-        str.removeFirst(p.count)
-        return p
-      }
+    public static func string(_ p: String) -> Parser {
+        return .init { str in
+            guard str.hasPrefix(p) else { return nil }
+            str.removeFirst(p.count)
+            return p
+        }
     }
 
 }
@@ -156,17 +156,15 @@ extension Parser {
 }
 
 
-public func oneOf<A>(
-  _ ps: [Parser<A>]
-  ) -> Parser<A> {
-  return Parser<A> { str -> A? in
-    for p in ps {
-      if let match = p.run(&str) {
-        return match
-      }
+public func oneOf<A>(_ ps: [Parser<A>]) -> Parser<A> {
+    return Parser<A> { str -> A? in
+        for p in ps {
+            if let match = p.run(&str) {
+                return match
+            }
+        }
+        return nil
     }
-    return nil
-  }
 }
 
 
